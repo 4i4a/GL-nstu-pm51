@@ -7,7 +7,9 @@
 #   include <gl/glut.h>
 #endif
 
-#define ESCAPE '\033'
+#define ESCAPE 27
+#define ENTER 13
+
 
 typedef struct dot_type {
     dot_type(int x_t, int y_t):x(x_t),y(y_t) {
@@ -20,7 +22,9 @@ typedef struct dot_type {
     };
 }dot;
 
-std::vector<dot> vd;
+typedef std::vector<dot> shape;
+
+std::vector<shape> shapes;
 
 GLint Width = 512, Height = 512;
 
@@ -28,12 +32,14 @@ void Display()
 {
     glClearColor(0, 0, 0, 1);
     glClear(GL_COLOR_BUFFER_BIT);
-    glBegin(GL_POLYGON);
-    for (dot j : vd) {
-        glVertex2f(j.x, j.y);
-        glColor3ubv(j.color);
+    for (auto i : shapes) {
+        glBegin(GL_POLYGON);
+        for (dot j : i) {
+            glVertex2f(j.x, j.y);
+            glColor3ubv(j.color);
+        }
+        glEnd();
     }
-    glEnd();
     glFinish();
 }
 /* Функция вызывается при изменении размеров окна */
@@ -51,16 +57,23 @@ void Reshape(GLint w, GLint h)
 /* Функция обрабатывает сообщения от клавиатуры */
 void Keyboard( unsigned char key, int x, int y )
 {
+    std::cout << int(key);
     if( key == ESCAPE ) {
         exit(0);
-    } else {
-        std::cout << int(key);
+    }
+    else if(key == ENTER) {
+        shape temp;
+        shapes.push_back(temp);
     }
 }
 
 void Mouse(int button, int state, int x, int y) {
+    if (shapes.empty()) {
+        shape temp;
+        shapes.push_back(temp);
+    }
     if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
-        vd.push_back({x, Height-y});
+        shapes.back().push_back({x, Height-y});
         glutPostRedisplay();
     }
 }
